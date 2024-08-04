@@ -1,4 +1,5 @@
 import TermTk as ttk
+import requests
 
 # fridge screen terminal size: 145 x 42
 
@@ -22,12 +23,51 @@ logo = [
 
 index = 0
 for line in logo:
-    ttk.TTkLabel(parent=root, pos=(40, 10 + index), text=line)
+    ttk.TTkLabel(parent=root, pos=(40, 3 + index), text=line)
     index += 1
 
-ttk.TTkLabel(parent=root, pos=(65, 24), text="⣏⡉ ⡀⣀ ⠄ ⢀⣸ ⢀⡀ ⢀⡀   ⢎⡑ ⣰⡀ ⢀⣀ ⣰⡀ ⠄ ⢀⣀ ⣰⡀ ⠄ ⢀⣀ ⢀⣀")
-ttk.TTkLabel(parent=root, pos=(65, 25), text="⠇  ⠏  ⠇ ⠣⠼ ⣑⡺ ⠣⠭   ⠢⠜ ⠘⠤ ⠣⠼ ⠘⠤ ⠇ ⠭⠕ ⠘⠤ ⠇ ⠣⠤ ⠭⠕")
+ttk.TTkLabel(parent=root, pos=(65, 17), text="⣏⡉ ⡀⣀ ⠄ ⢀⣸ ⢀⡀ ⢀⡀   ⢎⡑ ⣰⡀ ⢀⣀ ⣰⡀ ⠄ ⢀⣀ ⣰⡀ ⠄ ⢀⣀ ⢀⣀")
+ttk.TTkLabel(parent=root, pos=(65, 18), text="⠇  ⠏  ⠇ ⠣⠼ ⣑⡺ ⠣⠭   ⠢⠜ ⠘⠤ ⠣⠼ ⠘⠤ ⠇ ⠭⠕ ⠘⠤ ⠇ ⠣⠤ ⠭⠕")
 
-ttk.TTkButton(parent=root, pos=(60, 35),  size=(30, 5), border=True, text="Coming soon !")
+state = {
+    "consumers": [],
+    "items": [],
+}
+
+@ttk.pyTTkSlot()
+def hello():
+    for a in state["consumers"]:
+        print(a.checkState())
+
+    for a in state["items"]:
+        print(a.checkState())
+
+webdata = requests.get("http://10.241.0.240:7922/info")
+info = webdata.json()
+
+# print(info)
+
+line = 22
+for consumer in info["consumers"]:
+    label = f" {consumer[1]}"
+    checked = (line == 22)
+
+    radio = ttk.TTkRadioButton(parent=root, text=label, pos=(40, line), size=(20, 1), radiogroup="consumer", checked=checked)
+    state["consumers"].append(radio)
+
+    line += 1
+
+line = 22
+for item in info["items"]:
+    label = f" {item[1]} ({item[2]} cl)"
+    checked = (line == 22)
+
+    radio = ttk.TTkRadioButton(parent=root, text=label, pos=(80, line), size=(30, 1), radiogroup="items", checked=checked)
+    state["items"].append(radio)
+
+    line += 1
+
+drink = ttk.TTkButton(parent=root, pos=(60, 35),  size=(30, 5), border=True, text="Take a Drink")
+drink.clicked.connect(hello)
 
 root.mainloop()
