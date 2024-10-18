@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Maxux Dashboard</title>
+
+    <link href="/static/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/fridge.css" rel="stylesheet">
+
+    <script src="/static/jquery.min.js"></script>
+</head>
+
+<body>
+    <main class="text-light">
+        <div class="container">
+            <div class="row mt-4">
+                <div class="col">
+                    <div class="list-group" id="consumers">
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="list-group" id="items">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col">
+                    <button class="btn btn-primary btn-lg w-100" onclick="drink(this);" id="apply">Take a drink !</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+<script src="/static/bootstrap.bundle.min.js"></script>
+<script>
+var selected_consumer = null;
+var selected_item = null;
+
+function select_consumer(source) {
+    $("#consumers a").removeClass("active");
+
+    $(source).addClass("active");
+
+    selected_consumer = parseInt(source.dataset.id);
+    return false;
+}
+
+function select_item(source) {
+    $("#items a").removeClass("active");
+
+    $(source).addClass("active");
+
+    selected_item = parseInt(source.dataset.id);
+    return false;
+
+}
+
+function button_reset() {
+    $("#apply").html("Take a drink !");
+    $("#apply").removeClass("btn-success").addClass("btn-primary");
+    $("#apply").prop("disabled", false);
+}
+
+function drink(sender) {
+    sender.disabled = true;
+    $(sender).removeClass("btn-primary").addClass("btn-secondary");
+
+    $.get("/consume/" + selected_consumer + "/" + selected_item).done(function (response) {
+        sender.innerText = "Have a nice drink !";
+        $(sender).removeClass("btn-secondary").addClass("btn-success");
+        setTimeout(button_reset, 1000);
+
+        $("#items a").removeClass("active");
+        $("#consumers a").removeClass("active");
+
+        $("#items a:first-child").addClass("active");
+        $("#consumers a:first-child").addClass("active");
+
+        $("#prev-" + selected_consumer).html(response.recent);
+
+        // reset to Maxux / Coca Cola
+        selected_item = 1;
+        selected_consumer = 1;
+    });
+}
+
+$(document).ready(function() {
+    $.get("/info").done(function (data) {
+        console.log(data);
+
+        for(let index in data.consumers) {
+            let consumer = data.consumers[index];
+
+            var classes = "list-group-item list-group-item-action-dark" + ((index == 0) ? " active" : "");
+
+            let options = {
+                "class": classes,
+                "href": "#",
+                "onclick": "return select_consumer(this);",
+                "data-id": consumer[0],
+            };
+
+            // let link = $("<a>", options).html(consumer[1]);
+            let link = $("<a>", options);
+            let div = $("<div>", {"class": "d-flex w-100 justify-content-between align-items-center"});
+            let span = $("<span>").html(consumer[1]);
+            let badge = $("<span>", {"class": "badge rounded-pill text-bg-secondary", "id": "prev-" + consumer[0]}).html(consumer[2]);
+
+            div.append(span).append(badge);
+            link.append(div);
+
+            $("#consumers").append(link);
+        }
+
+        for(let index in data.items) {
+            let item = data.items[index];
+
+            var classes = "list-group-item list-group-item-action-dark" + ((index == 0) ? " active" : "");
+
+            let options = {
+                "class": classes,
+                "href": "#",
+                "onclick": "return select_item(this);",
+                "data-id": item[0],
+            };
+
+            let link = $("<a>", options).html(item[1]);
+
+            $("#items").append(link);
+        }
+
+        selected_consumer = data.consumers[0][0];
+        selected_item = data.items[0][0];
+    });
+});
+</script>
+</body>
+
+</html>
