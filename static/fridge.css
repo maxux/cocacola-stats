@@ -1,15 +1,39 @@
+@font-face {
+    font-family: 'Nunito';
+    src: url('nunito-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+    font-style: normal;
+}
+
+.list-group-item {
+    --bs-list-group-bg: rgba(0, 0, 0, 0.5);
+    --bs-list-group-color: #ffffff;
+    --bs-list-group-border-width: 0;
+}
+
 body {
+    font-family: "Nunito", sans-serif;
+    background-image: url(cocacola.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
     background-color: #000000;
-    font-size: 170%;
+    font-size: 130%;
     user-select: none;
+}
+
+main {
+    transition: 0.4s;
+    opacity: 1;
+}
+
+main.inactive {
+    transition: 3s;
+    opacity: 0.3;
 }
 
 html::-webkit-scrollbar, body::-webkit-scrollbar {
     display: none;
 }
 
-.list-group-item {
-    background-color: #111111;
-    color: #ffffff;
-    border: none;
-}

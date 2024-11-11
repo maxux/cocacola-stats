@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 
 <head>
     <meta charset="utf-8">
@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Maxux Dashboard</title>
+    <title>Fridge Statistics Frontpage</title>
 
     <link href="/static/bootstrap.min.css" rel="stylesheet">
     <link href="/static/fridge.css" rel="stylesheet">
@@ -18,22 +18,22 @@
 
 <body>
     <main class="text-light">
-        <div class="container">
+        <div class="container d-flex flex-column min-vh-100">
             <div class="row mt-4">
                 <div class="col">
-                    <div class="list-group" id="consumers">
+                    <div class="list-group border border-info-subtle" id="consumers">
                     </div>
                 </div>
 
                 <div class="col">
-                    <div class="list-group" id="items">
+                    <div class="list-group border border-primary-subtle" id="items">
                     </div>
                 </div>
             </div>
 
-            <div class="row mt-5">
+            <div class="row mt-auto mb-4">
                 <div class="col">
-                    <button class="btn btn-primary btn-lg w-100" onclick="drink(this);" id="apply">Take a drink !</button>
+                    <button class="btn btn-primary fs-1 w-100 py-3" onclick="drink(this);" id="apply">Take a drink</button>
                 </div>
             </div>
         </div>
@@ -42,8 +42,28 @@
 
 <script src="/static/bootstrap.bundle.min.js"></script>
 <script>
+var inactivity_time = 0;
+var inactivity_enabled = false;
 var selected_consumer = null;
 var selected_item = null;
+
+function inactivity_update() {
+    inactivity_time += 1;
+
+    if(inactivity_time > 5 && inactivity_enabled == false) {
+        inactivity_enabled = true;
+        $("main").addClass("inactive");
+    }
+}
+
+function inactivity_reset(source) {
+    inactivity_time = 0;
+
+    if(inactivity_enabled == true) {
+        inactivity_enabled = false;
+        $("main").removeClass("inactive");
+    }
+}
 
 function select_consumer(source) {
     $("#consumers a").removeClass("active");
@@ -65,19 +85,20 @@ function select_item(source) {
 }
 
 function button_reset() {
-    $("#apply").html("Take a drink !");
+    $("#apply").html("Take a drink");
     $("#apply").removeClass("btn-success").addClass("btn-primary");
     $("#apply").prop("disabled", false);
 }
 
 function drink(sender) {
     sender.disabled = true;
+    sender.innerText = "Updating statistics...";
     $(sender).removeClass("btn-primary").addClass("btn-secondary");
 
     $.get("/consume/" + selected_consumer + "/" + selected_item).done(function (response) {
         sender.innerText = "Have a nice drink !";
         $(sender).removeClass("btn-secondary").addClass("btn-success");
-        setTimeout(button_reset, 1000);
+        setTimeout(button_reset, 2200);
 
         $("#items a").removeClass("active");
         $("#consumers a").removeClass("active");
@@ -94,13 +115,16 @@ function drink(sender) {
 }
 
 $(document).ready(function() {
+    // setInterval(inactivity_update, 1000);
+    // $(this).mousemove(inactivity_reset);
+
     $.get("/info").done(function (data) {
         console.log(data);
 
         for(let index in data.consumers) {
             let consumer = data.consumers[index];
 
-            var classes = "list-group-item list-group-item-action-dark" + ((index == 0) ? " active" : "");
+            var classes = "list-group-item list-group-item-action list-group-item-info" + ((index == 0) ? " active" : "");
 
             let options = {
                 "class": classes,
@@ -109,11 +133,15 @@ $(document).ready(function() {
                 "data-id": consumer[0],
             };
 
-            // let link = $("<a>", options).html(consumer[1]);
             let link = $("<a>", options);
             let div = $("<div>", {"class": "d-flex w-100 justify-content-between align-items-center"});
             let span = $("<span>").html(consumer[1]);
-            let badge = $("<span>", {"class": "badge rounded-pill text-bg-secondary", "id": "prev-" + consumer[0]}).html(consumer[2]);
+
+            var last24 = consumer[2];
+            if(consumer[2] < 1)
+                last24 = "";
+
+            let badge = $("<span>", {"class": "badge text-bg-dark", "id": "prev-" + consumer[0]}).html(last24);
 
             div.append(span).append(badge);
             link.append(div);
@@ -124,7 +152,7 @@ $(document).ready(function() {
         for(let index in data.items) {
             let item = data.items[index];
 
-            var classes = "list-group-item list-group-item-action-dark" + ((index == 0) ? " active" : "");
+            var classes = "list-group-item list-group-item-action list-group-item-primary" + ((index == 0) ? " active" : "");
 
             let options = {
                 "class": classes,
@@ -133,7 +161,13 @@ $(document).ready(function() {
                 "data-id": item[0],
             };
 
-            let link = $("<a>", options).html(item[1]);
+            let link = $("<a>", options);
+            let div = $("<div>", {"class": "d-flex w-100 justify-content-between align-items-center"});
+            let span = $("<span>").html(item[1]);
+            let badge = $("<small>", {"class": "badge text-bg-dark", "id": "prev-" + item[0]}).html(item[2] + " cl");
+
+            div.append(span).append(badge);
+            link.append(div);
 
             $("#items").append(link);
         }
