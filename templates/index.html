@@ -19,13 +19,13 @@
 <body>
     <main class="text-light">
         <div class="container d-flex flex-column min-vh-100">
-            <div class="row mt-4">
-                <div class="col">
+            <div class="row my-2">
+                <div class="col-12 col-lg-6 my-3">
                     <div class="list-group border border-info-subtle" id="consumers">
                     </div>
                 </div>
 
-                <div class="col">
+                <div class="col-12 col-lg-6 my-3">
                     <div class="list-group border border-primary-subtle" id="items">
                     </div>
                 </div>
@@ -115,8 +115,13 @@ function drink(sender) {
 }
 
 $(document).ready(function() {
-    // setInterval(inactivity_update, 1000);
-    // $(this).mousemove(inactivity_reset);
+    // Automatic inactivity fadeout to reduce brightness, for kiosk
+    if(window.innerWidth == 1024 && window.innerHeight == 600) {
+        console.log("Inactivity monitor enabled");
+
+        setInterval(inactivity_update, 1000);
+        $(this).mousemove(inactivity_reset);
+    }
 
     $.get("/info").done(function (data) {
         console.log(data);
