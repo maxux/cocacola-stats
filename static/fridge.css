@@ -6,10 +6,8 @@
     font-style: normal;
 }
 
-.list-group-item {
-    --bs-list-group-bg: rgba(0, 0, 0, 0.5);
-    --bs-list-group-color: #ffffff;
-    --bs-list-group-border-width: 0;
+html {
+    background-color: #000000;
 }
 
 body {
@@ -23,17 +21,38 @@ body {
     user-select: none;
 }
 
-main {
-    transition: 0.4s;
-    opacity: 1;
+.list-group-item {
+    --bs-list-group-bg: rgba(0, 0, 0, 0.1);
+    --bs-list-group-color: #ffffff;
+    --bs-list-group-border-width: 0;
 }
 
-main.inactive {
+.fast-fade {
+    transition: background-color 0.4s;
+}
+
+.list-group {
+    max-height: 380px;
+    overflow-y: scroll;
+    backdrop-filter: blur(10px);
+    transition: filter 0.4s;
+}
+
+.active {
+    transition: 0s;
+}
+
+.list-group::-webkit-scrollbar {
+    width: 0;
+}
+
+.inactive {
     transition: 3s;
-    opacity: 0.3;
+    filter: grayscale(1) opacity(0.4);
 }
 
-html::-webkit-scrollbar, body::-webkit-scrollbar {
-    display: none;
+.list-group.inactive .list-group-item {
+    --bs-list-group-bg: transparent;
+    transition: background-color 3s;
 }
 

@@ -2,45 +2,51 @@
 <html lang="en" data-bs-theme="dark">
 
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
 
-    <title>Fridge Statistics Frontpage</title>
+  <title>Fridge Statistics Frontpage</title>
 
-    <link href="/static/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/fridge.css" rel="stylesheet">
+  <link href="/static/bootstrap.min.css" rel="stylesheet">
+  <link href="/static/fridge.css" rel="stylesheet">
+  <!-- <link href="/static/laura.css" rel="stylesheet"> -->
 
-    <script src="/static/jquery.min.js"></script>
+  <script src="/static/jquery.min.js"></script>
 
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#091d36">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#091d36">
 </head>
 
 <body>
-    <main class="text-light">
-        <div class="container d-flex flex-column min-vh-100">
-            <div class="row my-2">
-                <div class="col-12 col-lg-6 my-3">
-                    <div class="list-group border border-info-subtle" id="consumers">
-                    </div>
-                </div>
+  <main class="text-light">
+    <div class="pyro">
+      <div class="before"></div>
+      <div class="after"></div>
+    </div>
 
-                <div class="col-12 col-lg-6 my-3">
-                    <div class="list-group border border-primary-subtle" id="items">
-                    </div>
-                </div>
-            </div>
-
-            <div class="row mt-auto mb-4">
-                <div class="col">
-                    <button class="btn btn-primary fs-1 w-100 py-3" onclick="drink(this);" id="apply">Take a drink</button>
-                </div>
-            </div>
+    <div class="container d-flex flex-column min-vh-100">
+      <div class="row my-2">
+        <div class="col-12 col-lg-6 my-3">
+          <div class="list-group border border-info-subtle scrollbar" id="consumers">
+          </div>
         </div>
-    </main>
+
+        <div class="col-12 col-lg-6 my-3">
+          <div class="list-group border border-primary-subtle" id="items">
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-auto mb-4">
+        <div class="col">
+          <button class="btn btn-primary fs-1 w-100 py-3" onclick="drink(this);" id="apply">Take a drink</button>
+        </div>
+      </div>
+    </div>
+  </main>
 
 
 <script src="/static/bootstrap.bundle.min.js"></script>
@@ -49,13 +55,16 @@ var inactivity_time = 0;
 var inactivity_enabled = false;
 var selected_consumer = null;
 var selected_item = null;
+let default_consumer = 1;
+let default_item = 1;
 
 function inactivity_update() {
     inactivity_time += 1;
 
     if(inactivity_time > 5 && inactivity_enabled == false) {
         inactivity_enabled = true;
-        $("main").addClass("inactive");
+        $(".list-group").removeClass("fast-fade").addClass("inactive");
+        $("button").removeClass("fast-fade").addClass("inactive");
     }
 }
 
@@ -64,7 +73,8 @@ function inactivity_reset(source) {
 
     if(inactivity_enabled == true) {
         inactivity_enabled = false;
-        $("main").removeClass("inactive");
+        $(".list-group").removeClass("inactive").addClass("fast-fade");
+        $("button").removeClass("inactive").addClass("fast-fade");
     }
 }
 
@@ -112,8 +122,8 @@ function drink(sender) {
         $("#prev-" + selected_consumer).html(response.recent);
 
         // reset to Maxux / Coca Cola
-        selected_item = 1;
-        selected_consumer = 1;
+        selected_item = default_item;
+        selected_consumer = default_consumer;
     });
 }
 
@@ -126,13 +136,13 @@ $(document).ready(function() {
         $(this).mousemove(inactivity_reset);
     }
 
-    $.get("/info").done(function (data) {
+   $.get("/info").done(function (data) {
         console.log(data);
 
         for(let index in data.consumers) {
             let consumer = data.consumers[index];
 
-            var classes = "list-group-item list-group-item-action list-group-item-info" + ((index == 0) ? " active" : "");
+            var classes = "list-group-item list-group-item-action list-group-item-info" + ((consumer[0] == default_consumer) ? " active" : "");
 
             let options = {
                 "class": classes,
@@ -160,7 +170,7 @@ $(document).ready(function() {
         for(let index in data.items) {
             let item = data.items[index];
 
-            var classes = "list-group-item list-group-item-action list-group-item-primary" + ((index == 0) ? " active" : "");
+            var classes = "list-group-item list-group-item-action list-group-item-primary" + ((item[0] == default_item) ? " active" : "");
 
             let options = {
                 "class": classes,
@@ -180,8 +190,8 @@ $(document).ready(function() {
             $("#items").append(link);
         }
 
-        selected_consumer = data.consumers[0][0];
-        selected_item = data.items[0][0];
+        selected_consumer = default_consumer;
+        selected_item = default_item;
     });
 });
 </script>
