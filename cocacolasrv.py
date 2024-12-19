@@ -27,6 +27,11 @@ class CocaColaServer:
                 autocommit=True
             )
 
+        @self.app.after_request
+        def after_request_handler(response):
+            g.db.close()
+            return response
+
         @self.app.route('/info', methods=['GET'])
         def info():
             info = {
