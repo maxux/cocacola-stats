@@ -106,8 +106,11 @@ class CocaColaServer:
         def cocacola_index():
             return render_template("index.html")
 
-def gunicorn_main():
+if __name__ == "cocacolasrv":
+    print("[+] wsgi: initializing cocacola-server (fridge) application")
+
     root = CocaColaServer()
     root.routes()
-    return root.app
+
+    app = root.app
 
