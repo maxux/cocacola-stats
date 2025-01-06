@@ -84,6 +84,21 @@ class CocaColaServer:
 
             return jsonify({"status": "success", "recent": recent[0]})
 
+        @self.app.route('/lastlog', methods=['GET'])
+        def lastlog():
+            cursor = g.db.cursor(pymysql.cursors.DictCursor)
+            query = """
+                SELECT c.id uid, c.name fullname, COUNT(*) drinks
+                FROM consumption x
+                LEFT JOIN consumers c ON (c.id = x.consumer)
+                LEFT JOIN items i ON (i.id = x.item)
+                WHERE x.created > CURRENT_TIMESTAMP - INTERVAL 24 HOUR
+                GROUP BY c.id, c.name
+            """
+            cursor.execute(query)
+
+            return jsonify(cursor.fetchall())
+
         @self.app.route('/summary', methods=['GET'])
         def summary():
             cursor = g.db.cursor()
