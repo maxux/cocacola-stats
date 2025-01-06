@@ -58,6 +58,31 @@ var selected_item = null;
 let default_consumer = 1;
 let default_item = 1;
 
+function lastlog_update(responses) {
+    // clean up all values first (clear rows not affected anymore)
+    $("#consumers span.badge").attr("class", "badge text-bg-dark").html("");
+
+    // fill in new values
+    for(let i in responses) {
+        let response = responses[i];
+
+        let badge = $("#prev-" + response['uid']);
+        badge.html(response['drinks']);
+
+        // quick colouring
+        if(response['drinks'] > 9)
+            badge.attr("class", "badge text-bg-danger");
+
+        else if(response['drinks'] > 4)
+            badge.attr("class", "badge text-bg-warning");
+    }
+}
+
+function refresh_lastlog() {
+    $.get("/lastlog").done(lastlog_update);
+}
+
+// inactivity screen fading
 function inactivity_update() {
     inactivity_time += 1;
 
@@ -192,6 +217,9 @@ $(document).ready(function() {
 
         selected_consumer = default_consumer;
         selected_item = default_item;
+
+        // FIXME: avoid doing multiple time the same things
+        refresh_lastlog();
     });
 });
 </script>
