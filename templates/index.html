@@ -147,7 +147,12 @@ function drink(sender) {
         $("#items a:first-child").addClass("active");
         $("#consumers a:first-child").addClass("active");
 
-        $("#prev-" + selected_consumer).html(response.recent);
+        // $("#prev-" + selected_consumer).html(response.recent);
+        refresh_lastlog();
+
+        // force scrolling to the top of boxes
+        $("#consumers").animate({ scrollTop: 0 }, "fast");
+        $("#items").animate({ scrollTop: 0 }, "fast");
 
         // reset to Maxux / Coca Cola
         selected_item = default_item;
