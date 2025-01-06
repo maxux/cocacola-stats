@@ -100,9 +100,13 @@ function inactivity_reset(source) {
         inactivity_enabled = false;
         $(".list-group").removeClass("inactive").addClass("fast-fade");
         $("button").removeClass("inactive").addClass("fast-fade");
+
+        // quickly refresh lastlog
+        refresh_lastlog();
     }
 }
 
+// selectors
 function select_consumer(source) {
     $("#consumers a").removeClass("active");
 
@@ -119,7 +123,6 @@ function select_item(source) {
 
     selected_item = parseInt(source.dataset.id);
     return false;
-
 }
 
 function button_reset() {
